@@ -1,0 +1,120 @@
+﻿@import "tailwindcss";
+
+:root {
+  --ocean-deep: #0a1628;
+  --ocean-mid: #0f3460;
+  --ocean-teal: #1a5f7a;
+  --foam: #57c5b6;
+  --foam-light: #8fe3d6;
+  --sky: #a8d8ea;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-border: rgba(168, 216, 234, 0.2);
+  --text: #e8f4f8;
+  --text-muted: #9db8c4;
+  --background: var(--ocean-deep);
+  --foreground: var(--text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-noto);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--ocean-deep);
+  color: var(--foreground);
+  font-family: var(--font-noto), system-ui, sans-serif;
+  min-height: 100dvh;
+}
+
+.ocean-gradient {
+  background: linear-gradient(
+    160deg,
+    var(--ocean-deep) 0%,
+    #0d2844 25%,
+    var(--ocean-mid) 55%,
+    var(--ocean-teal) 100%
+  );
+  background-size: 200% 200%;
+  animation: oceanShift 24s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-gradient {
+    animation: none;
+    background-size: 100% 100%;
+  }
+}
+
+@keyframes oceanShift {
+  0%,
+  100% {
+    background-position: 0% 40%;
+  }
+  50% {
+    background-position: 100% 60%;
+  }
+}
+
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.btn-ocean {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--foam) 0%, var(--ocean-teal) 100%);
+  color: var(--ocean-deep);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-ocean:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(87, 197, 182, 0.35);
+}
+
+.btn-ocean:disabled {
+  opacity: 0.5;
+  transform: none;
+  cursor: not-allowed;
+}
+
+.input-ocean {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--surface-border);
+  background: rgba(10, 22, 40, 0.5);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-ocean:focus {
+  border-color: var(--foam);
+  box-shadow: 0 0 0 3px rgba(87, 197, 182, 0.25);
+}
+
+.input-ocean::placeholder {
+  color: var(--text-muted);
+}
