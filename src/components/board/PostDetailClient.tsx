@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { addPostComment, togglePostLike } from "@/app/board/actions";
 
 export type CommentRow = {
   id: string;
@@ -25,7 +26,7 @@ export function PostDetailClient({
   initialComments: CommentRow[];
 }) {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [liked, setLiked] = useState(initialLiked);
   const [likeBusy, setLikeBusy] = useState(false);
@@ -71,28 +72,11 @@ export function PostDetailClient({
   async function toggleLike() {
     setErr(null);
     setLikeBusy(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setErr("로그인이 필요합니다.");
-      setLikeBusy(false);
-      return;
-    }
-    if (liked) {
-      const { error } = await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", user.id);
-      if (error) setErr(error.message);
-      else {
-        setLiked(false);
-        setLikeCount((c) => Math.max(0, c - 1));
-      }
-    } else {
-      const { error } = await supabase.from("post_likes").insert({ post_id: postId, user_id: user.id });
-      if (error) setErr(error.message);
-      else {
-        setLiked(true);
-        setLikeCount((c) => c + 1);
-      }
+    const res = await togglePostLike(postId);
+    if (!res.ok) setErr(res.error);
+    else {
+      setLiked(res.liked);
+      setLikeCount(res.likeCount);
     }
     setLikeBusy(false);
     router.refresh();
@@ -104,20 +88,8 @@ export function PostDetailClient({
     if (!t) return;
     setErr(null);
     setCommentBusy(true);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      setErr("로그인이 필요합니다.");
-      setCommentBusy(false);
-      return;
-    }
-    const { error } = await supabase.from("post_comments").insert({
-      post_id: postId,
-      user_id: user.id,
-      body: t.slice(0, 2000),
-    });
-    if (error) setErr(error.message);
+    const res = await addPostComment(postId, t);
+    if (!res.ok) setErr(res.error);
     else {
       setCommentBody("");
       await refreshComments();
