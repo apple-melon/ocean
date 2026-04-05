@@ -1,38 +1,29 @@
-﻿import events from "@/data/events.json";
+﻿import { createClient } from "@/lib/supabase/server";
+import { CalendarGrid } from "@/components/calendar/CalendarGrid";
+import { getCalendarEvents } from "@/lib/calendarEvents";
+import Link from "next/link";
 
-type Ev = { date: string; title: string; type: string; note?: string };
+export const revalidate = 60;
 
-const typeLabel: Record<string, string> = {
-  exam: "시험",
-  holiday: "휴일",
-  event: "행사",
-};
-
-export default function CalendarPage() {
-  const sorted = [...(events as Ev[])].sort((a, b) => a.date.localeCompare(b.date));
+export default async function CalendarPage() {
+  const supabase = await createClient();
+  const events = await getCalendarEvents(supabase);
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-[var(--foam-light)]">학사 · 시험 달력</h1>
-      <p className="text-sm text-[var(--text-muted)]">
-        샘플 데이터입니다. <code className="rounded bg-black/30 px-1">src/data/events.json</code> 을 수정해 실제 일정을 반영하세요.
-      </p>
-      <ul className="space-y-3">
-        {sorted.map((e) => (
-          <li key={e.date + e.title} className="glass-card flex flex-wrap items-center justify-between gap-3 p-4">
-            <div>
-              <p className="font-medium text-[var(--text)]">{e.title}</p>
-              {e.note && <p className="mt-1 text-sm text-[var(--text-muted)]">{e.note}</p>}
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="rounded-full bg-[var(--foam)]/15 px-3 py-1 text-[var(--foam-light)]">
-                {typeLabel[e.type] ?? e.type}
-              </span>
-              <span className="text-[var(--text-muted)]">{e.date}</span>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-[var(--foam-light)]">학사 · 시험 달력</h1>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
+            날짜를 누르면 그날 일정 상세를 볼 수 있습니다. 일정은 관리자만 편집할 수 있습니다.
+          </p>
+        </div>
+        <Link href="/" className="text-sm text-[var(--foam-light)] hover:underline">
+          홈
+        </Link>
+      </div>
+
+      <CalendarGrid events={events} />
     </div>
   );
 }

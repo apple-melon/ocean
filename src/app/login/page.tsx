@@ -84,7 +84,7 @@ export default function LoginPage() {
         if (error) setMessage(explainAuthError(error.message, error.code));
         else
           setMessage(
-            "가입이 완료되었습니다. Supabase에서 이메일 확인(Confirm email)을 켜 두었다면, 메일의 링크를 누른 뒤 로그인하세요. 확인을 꺼 두었다면 바로 로그인할 수 있습니다."
+            "가입이 완료되었습니다. 바로 로그인하려면 Supabase → Authentication → Providers → Email → Confirm email 을 끄세요. 켜 두었다면 메일 인증 후 로그인할 수 있습니다."
           );
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });

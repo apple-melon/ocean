@@ -12,10 +12,11 @@
 1. Supabase에서 프로젝트 생성 후 **API URL**과 **anon key**를 복사합니다.
 2. **SQL**: `supabase/migrations/001_initial.sql` 내용을 Supabase SQL Editor에 붙여 실행합니다.
    - 트리거 오류 시 Postgres 버전에 따라 `execute function`을 `execute procedure`로 바꿔 보세요.
-3. **Authentication → URL configuration**에 Site URL과 Redirect URL에 로컬/배포 도메인을 추가합니다 (예: `http://localhost:3000/auth/callback`).
-4. 개발용으로 **Email confirmations**을 끄면 가입 직후 로그인 테스트가 쉽습니다.
-5. **Database → Replication**에서 `chat_messages` 테이블이 Realtime에 포함됐는지 확인합니다 (마이그레이션에 `alter publication` 포함).
-6. 루트에 `.env.local` 생성:
+3. **달력 일정 테이블**: `supabase/migrations/002_calendar_events.sql` 도 같은 방식으로 실행합니다. (어드민 달력 편집·월간 달력에 필요)
+4. **Authentication → URL configuration**에 Site URL과 Redirect URL에 로컬/배포 도메인을 추가합니다 (예: `http://localhost:3000/auth/callback`).
+5. **이메일 인증 없이 가입/로그인만 쓰려면**: **Authentication → Providers → Email**에서 **Confirm email** 을 **끄세요**. (켜 두면 메일 링크를 누르기 전에는 로그인되지 않습니다.)
+6. **Database → Replication**에서 `chat_messages` 테이블이 Realtime에 포함됐는지 확인합니다 (마이그레이션에 `alter publication` 포함).
+7. 루트에 `.env.local` 생성:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
@@ -29,7 +30,7 @@ ADMIN_SETUP_SECRET=아주-긴-비밀문장
 ## 어드민
 
 1. 회원가입/로그인 후 `/admin/unlock`에서 `ADMIN_SETUP_SECRET` 값을 입력합니다.
-2. 새로고침 후 상단 **관리** 메뉴에서 게시글 숨김/삭제가 가능합니다.
+2. 새로고침 후 상단 **관리** 메뉴에서 게시글 숨김/삭제, **달력 일정 편집**(`/admin/calendar`)이 가능합니다.
 
 ## 개발
 
@@ -61,7 +62,7 @@ NEIS_SD_SCHUL_CODE=1234567
 
 ## 데이터
 
-- 학사 일정: `src/data/events.json`
+- 학사 일정: Supabase `calendar_events` (마이그레이션 미적용·오류 시 `src/data/events.json` 백업 표시)
 - 급식(백업·미연동 시): `src/data/meals.json`
 
 소스 파일은 **UTF-8**로 저장하세요 (`.editorconfig` 참고). 제목·푸터 한글이 깨지면 파일 인코딩을 UTF-8로 다시 저장합니다.

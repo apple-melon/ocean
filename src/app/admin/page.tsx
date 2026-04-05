@@ -21,6 +21,14 @@ export default async function AdminPage() {
           잠금 해제
         </Link>
       </div>
+      <div className="flex flex-wrap gap-3 text-sm">
+        <Link
+          href="/admin/calendar"
+          className="rounded-lg border border-[var(--foam)]/30 bg-[var(--foam)]/10 px-4 py-2 font-medium text-[var(--foam-light)] hover:bg-[var(--foam)]/20"
+        >
+          달력 일정 편집
+        </Link>
+      </div>
       <p className="text-sm text-[var(--text-muted)]">게시글 숨김/삭제. 채팅 메시지는 DB 대시보드에서 추가 정리할 수 있습니다.</p>
       <AdminClient />
     </div>
