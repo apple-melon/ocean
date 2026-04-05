@@ -14,33 +14,73 @@ export default function LoginPage() {
   const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
 
+  function explainAuthError(msg: string): string {
+    const lower = msg.toLowerCase();
+    if (
+      lower.includes("failed to fetch") ||
+      lower.includes("networkerror") ||
+      lower.includes("load failed")
+    ) {
+      return [
+        "Supabase 서버와 연결되지 않았습니다.",
+        "① Vercel → Settings → Environment Variables에 NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY가 있는지 확인",
+        "② 값 앞뒤 공백·오타 없는지 확인 (URL은 https://xxxx.supabase.co 형태)",
+        "③ 변수를 새로 넣거나 바꿨다면 반드시 Redeploy(다시 배포)",
+        "④ Supabase 대시보드에서 프로젝트가 일시정지(Paused)되지 않았는지 확인",
+      ].join(" ");
+    }
+    return msg;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
-    const supabase = createClient();
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!url) {
-      setMessage("Supabase 환경변수를 설정하세요 (.env.local).");
+
+    const url = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
+    const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "").trim();
+
+    if (!url || !anon) {
+      setMessage(
+        "Supabase 주소/키가 없습니다. Vercel 환경 변수에 NEXT_PUBLIC_SUPABASE_URL 과 NEXT_PUBLIC_SUPABASE_ANON_KEY 를 넣은 뒤 다시 배포하세요."
+      );
       setLoading(false);
       return;
     }
 
-    if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-      });
-      if (error) setMessage(error.message);
-      else setMessage("가입 요청이 완료되었습니다. 이메일을 확인하거나 Supabase에서 이메일 확인을 비활성화한 경우 바로 로그인해 보세요.");
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setMessage(error.message);
-      else {
-        router.refresh();
-        router.push("/");
+    if (url.includes("placeholder.supabase.co")) {
+      setMessage(
+        "아직 빌드용 placeholder 주소입니다. 실제 Supabase Project URL로 환경 변수를 바꾼 뒤 Vercel에서 Redeploy 하세요."
+      );
+      setLoading(false);
+      return;
+    }
+
+    const supabase = createClient();
+
+    try {
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        });
+        if (error) setMessage(explainAuthError(error.message));
+        else
+          setMessage(
+            "가입 요청이 완료되었습니다. 이메일을 확인하거나 Supabase에서 이메일 확인을 비활성화한 경우 바로 로그인해 보세요."
+          );
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) setMessage(explainAuthError(error.message));
+        else {
+          router.refresh();
+          router.push("/");
+        }
       }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setMessage(explainAuthError(msg));
     }
     setLoading(false);
   }
