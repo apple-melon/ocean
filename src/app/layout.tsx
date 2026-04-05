@@ -9,11 +9,14 @@ const noto = Noto_Sans_KR({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-noto",
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
-  title: "?ㅼ뀡以??숈깮 ?덈툕",
-  description: "?ㅼ뀡以묓븰援??숈깮???꾪븳 鍮꾧났???덈툕 ???쇱젙, 湲됱떇, 怨쇱젣, 寃뚯떆?? 梨꾪똿",
+  title: "오션중 학생 허브",
+  description:
+    "오션중학교 학생을 위한 비공식 허브 — 일정, 급식, 과제, 익명 게시판, 실시간 채팅",
 };
 
 export default function RootLayout({
@@ -31,10 +34,14 @@ export default function RootLayout({
             {children}
           </main>
           <footer className="relative z-10 border-t border-[var(--surface-border)] py-6 text-center text-sm text-[var(--text-muted)]">
-            <p>鍮꾧났???숈깮???ъ씠?몄엯?덈떎. ?숆탳 怨듭떇 ?낆옣怨?臾닿??⑸땲??</p>
+            <p>비공식 학생용 사이트입니다. 학교 공식 입장과 무관합니다.</p>
             <p className="mt-2">
-              <Link href="/admin/unlock" aria-label="운영자 잠금 해제" className="text-[var(--text-muted)]/30 hover:text-[var(--text-muted)]">
-                쨌
+              <Link
+                href="/admin/unlock"
+                aria-label="운영자 잠금 해제"
+                className="text-[var(--text-muted)]/30 hover:text-[var(--text-muted)]"
+              >
+                ·
               </Link>
             </p>
           </footer>

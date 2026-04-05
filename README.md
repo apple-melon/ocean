@@ -43,10 +43,28 @@ npm run dev
 - 동일 환경변수를 Vercel 프로젝트에 등록합니다.
 - Supabase Auth에 배포 URL의 `/auth/callback`을 추가합니다.
 
+## 급식 (NEIS 연동)
+
+1. [공공데이터포털](https://www.data.go.kr/) 또는 [나이스 교육정보 개방 포털](https://open.neis.go.kr/)에서 **급식식단정보 API** 인증키를 발급합니다.
+2. [학교기본정보 조회](https://open.neis.go.kr/hub/schoolInfo) 등으로 학교의 **시도교육청코드**(`ATPT_OFCDC_SC_CODE`), **학교코드**(`SD_SCHUL_CODE`)를 확인합니다.
+3. Vercel(또는 `.env.local`)에 서버 전용 변수로 추가합니다:
+
+```
+NEIS_API_KEY=발급받은_KEY
+NEIS_ATPT_OFCDC_SC_CODE=B10
+NEIS_SD_SCHUL_CODE=1234567
+```
+
+선택: `NEIS_MMEAL_SC_CODE` — `1` 조식, `2` 중식(기본), `3` 석식.
+
+4. 배포 후 `/급식` 페이지는 **서울 기준 이번 주 월~금** 중식을 NEIS에서 가져옵니다. 변수가 없거나 오류 시 `src/data/meals.json` 샘플로 대체됩니다.
+
 ## 데이터
 
 - 학사 일정: `src/data/events.json`
-- 급식: `src/data/meals.json`
+- 급식(백업·미연동 시): `src/data/meals.json`
+
+소스 파일은 **UTF-8**로 저장하세요 (`.editorconfig` 참고). 제목·푸터 한글이 깨지면 파일 인코딩을 UTF-8로 다시 저장합니다.
 
 ## 라이선스
 
