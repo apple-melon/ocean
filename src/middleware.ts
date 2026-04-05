@@ -27,7 +27,32 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("banned")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (prof?.banned) {
+      const path = request.nextUrl.pathname;
+      if (
+        path.startsWith("/auth") ||
+        path.startsWith("/login") ||
+        path.startsWith("/banned")
+      ) {
+        return supabaseResponse;
+      }
+      if (path.startsWith("/api")) {
+        return NextResponse.json({ error: "계정이 제한되었습니다." }, { status: 403 });
+      }
+      return NextResponse.redirect(new URL("/banned", request.url));
+    }
+  }
 
   return supabaseResponse;
 }

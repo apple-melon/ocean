@@ -28,6 +28,12 @@ export default async function AdminPage() {
         >
           달력 일정 편집
         </Link>
+        <Link
+          href="/admin/users"
+          className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-4 py-2 font-medium text-amber-100 hover:bg-amber-500/20"
+        >
+          계정 밴 / 해제
+        </Link>
       </div>
       <p className="text-sm text-[var(--text-muted)]">게시글 숨김/삭제. 채팅 메시지는 DB 대시보드에서 추가 정리할 수 있습니다.</p>
       <AdminClient />

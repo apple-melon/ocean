@@ -28,7 +28,11 @@ export function AdminCalendarClient() {
       .select("id, event_date, title, type, note")
       .order("event_date", { ascending: true });
     if (error) {
-      setMsg(error.message);
+      const hint =
+        error.message.includes("calendar_events") || error.message.includes("schema cache")
+          ? " Supabase SQL Editor에서 `supabase/migrations/003_board_ban_calendar_likes.sql`(및 필요 시 002)을 실행해 `calendar_events` 테이블을 만든 뒤 새로고침하세요."
+          : "";
+      setMsg(error.message + hint);
       setEvents([]);
     } else {
       setEvents((data as CalendarEvent[]) ?? []);

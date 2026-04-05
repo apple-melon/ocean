@@ -16,7 +16,7 @@ const noto = Noto_Sans_KR({
 export const metadata: Metadata = {
   title: "오션중 학생 허브",
   description:
-    "오션중학교 학생을 위한 비공식 허브 — 일정, 급식, 과제, 익명 게시판, 실시간 채팅",
+    "오션중학교 학생을 위한 비공식 허브 — 일정, 급식, 과제, 게시판, 실시간 채팅",
 };
 
 export default function RootLayout({

@@ -33,6 +33,17 @@ export default function LoginPage() {
     }
 
     if (
+      c === "user_already_exists" ||
+      lower.includes("user already registered") ||
+      lower.includes("already been registered") ||
+      lower.includes("already registered") ||
+      lower.includes("email address is already in use") ||
+      (lower.includes("duplicate") && lower.includes("user"))
+    ) {
+      return "이미 가입된 이메일입니다. 로그인 탭에서 로그인하세요. 비밀번호를 잊었다면 이메일 재설정(가입에 쓴 주소)을 이용하세요.";
+    }
+
+    if (
       lower.includes("failed to fetch") ||
       lower.includes("networkerror") ||
       lower.includes("load failed")
@@ -73,11 +84,12 @@ export default function LoginPage() {
     }
 
     const supabase = createClient();
+    const emailNorm = email.trim().toLowerCase();
 
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: emailNorm,
           password,
           options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
         });
@@ -87,7 +99,7 @@ export default function LoginPage() {
             "가입이 완료되었습니다. 바로 로그인하려면 Supabase → Authentication → Providers → Email → Confirm email 을 끄세요. 켜 두었다면 메일 인증 후 로그인할 수 있습니다."
           );
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: emailNorm, password });
         if (error) setMessage(explainAuthError(error.message, error.code));
         else {
           // 세션 쿠키가 서버 컴포넌트에 반영되도록 전체 이동
