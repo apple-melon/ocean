@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -12,10 +11,27 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const router = useRouter();
 
-  function explainAuthError(msg: string): string {
+  function explainAuthError(msg: string, code?: string): string {
     const lower = msg.toLowerCase();
+    const c = (code ?? "").toLowerCase();
+
+    if (c === "email_not_confirmed" || lower.includes("email not confirmed")) {
+      return [
+        "이메일 인증이 아직 완료되지 않았습니다.",
+        "가입 시 받은 메일의 링크를 눌러 인증한 뒤 다시 로그인하세요.",
+        "(학교/테스트용) Supabase → Authentication → Providers → Email → Confirm email 을 끄면 인증 없이 바로 로그인할 수 있습니다.",
+      ].join(" ");
+    }
+
+    if (c === "invalid_credentials" || lower.includes("invalid login credentials")) {
+      return [
+        "이메일 또는 비밀번호가 맞지 않습니다.",
+        "비밀번호를 다시 확인하세요.",
+        "가입 직후라면: 이메일 인증 메일을 아직 안 눌렀을 수 있습니다. 메일함(스팸함)을 확인하거나, 위와 같이 Supabase에서 이메일 확인을 끄고 다시 가입해 보세요.",
+      ].join(" ");
+    }
+
     if (
       lower.includes("failed to fetch") ||
       lower.includes("networkerror") ||
@@ -65,17 +81,18 @@ export default function LoginPage() {
           password,
           options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
         });
-        if (error) setMessage(explainAuthError(error.message));
+        if (error) setMessage(explainAuthError(error.message, error.code));
         else
           setMessage(
-            "가입 요청이 완료되었습니다. 이메일을 확인하거나 Supabase에서 이메일 확인을 비활성화한 경우 바로 로그인해 보세요."
+            "가입이 완료되었습니다. Supabase에서 이메일 확인(Confirm email)을 켜 두었다면, 메일의 링크를 누른 뒤 로그인하세요. 확인을 꺼 두었다면 바로 로그인할 수 있습니다."
           );
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) setMessage(explainAuthError(error.message));
+        if (error) setMessage(explainAuthError(error.message, error.code));
         else {
-          router.refresh();
-          router.push("/");
+          // 세션 쿠키가 서버 컴포넌트에 반영되도록 전체 이동
+          window.location.assign("/");
+          return;
         }
       }
     } catch (err) {
